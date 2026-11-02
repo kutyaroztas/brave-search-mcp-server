@@ -459,3 +459,11 @@ The override mounts the secret at `/run/secrets/brave_api_key` and sets `BRAVE_A
 ## License
 
 This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+
+### Optional local audit log
+
+Set `BRAVE_MCP_AUDIT_LOG` to an absolute path in an existing private directory to record each accepted tool invocation as a JSON Lines entry. Each entry contains UTC `timestamp`, `client`, `client_version`, `tool`, and `query` (null for tools without a query). The log is written before the tool runs, so it records attempts, not whether the search succeeded. New files are created with mode 0600; protect and rotate existing files yourself. Search text can be sensitive. If the log cannot be written, the call fails without contacting Brave.
+
+The client name and version come from MCP's `initialize` client information, which is self-reported and is not authentication. To label a local stdio process explicitly, set `BRAVE_MCP_CLIENT_NAME` (for example `codex`, `qwen`, or `pi`) in that client's MCP environment. This override applies to the whole server process and must not be used to distinguish clients sharing an HTTP server. Stateless HTTP requests may lack initialization information and are logged as `unknown`; use stateful sessions if client-provided identification is required. These names are not proof of identity.
+
+Example for a stdio client: set `BRAVE_MCP_AUDIT_LOG=/path/to/private/brave-audit.jsonl` and `BRAVE_MCP_CLIENT_NAME=codex` in its MCP server environment. Inspect using `cat /path/to/private/brave-audit.jsonl`. No keys, full parameters, or results are deliberately logged. Logging is disabled unless `BRAVE_MCP_AUDIT_LOG` is set.

@@ -1,4 +1,5 @@
 import tools from './tools/index.js';
+import { enableAudit } from './audit.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import pkg from '../package.json' with { type: 'json' };
 import { isToolPermittedByUser } from './config.js';
@@ -19,6 +20,8 @@ export default function createMcpServer(): McpServer {
       instructions: `Use this server to search the Web for various types of data via the Brave Search API.`,
     }
   );
+
+  enableAudit(mcpServer);
 
   for (const tool of Object.values(tools)) {
     // The user may have enabled/disabled this tool at runtime
